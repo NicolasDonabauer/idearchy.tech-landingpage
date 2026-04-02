@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #fafafa;
+    --bg-dark: #0a0a0a;
+    --accent: #ff3300;
+    --accent-glow: rgba(255, 51, 0, 0.15);
+    --text-muted: #666;
+    --rule-color: #ddd;
+    --rule-color-dark: rgba(255, 255, 255, 0.1);
+    --grid-color: rgba(0, 0, 0, 0.04);
+    --grid-color-dark: rgba(255, 255, 255, 0.04);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--bg-dark);
+    font-family: var(--font-nunito), sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  /* Grid background pattern */
+  .bg-grid-light {
+    background-image:
+      linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .bg-grid-dark {
+    background-image:
+      linear-gradient(var(--grid-color-dark) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color-dark) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Staggered animation delays */
+  .anim-delay-1 { animation-delay: 0.05s; }
+  .anim-delay-2 { animation-delay: 0.15s; }
+  .anim-delay-3 { animation-delay: 0.25s; }
+  .anim-delay-4 { animation-delay: 0.35s; }
+  .anim-delay-5 { animation-delay: 0.45s; }
+  .anim-delay-6 { animation-delay: 0.55s; }
+
+  .opacity-0-init { opacity: 0; }
+}
+
+/* Rotated accent square (from pitch) */
+.accent-square {
+  width: 12px;
+  height: 12px;
+  background-color: var(--accent);
+  transform: rotate(45deg);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Horizontal rule accent */
+.rule-accent {
+  width: 48px;
+  height: 2px;
+  background-color: var(--accent);
+}

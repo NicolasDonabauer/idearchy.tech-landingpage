@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>idearchy.tech — Your Knowledge, Finally Working</title>
+
+    <!-- Fonts: Archivo (display) + Nunito (body) -->
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;800;900&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES (SWISS MODERN THEME)
+           Change these to change the whole look
+           =========================================== */
+        :root {
+            /* Colors */
+            --bg: #fafafa;
+            --bg-dark: #0a0a0a;
+            --text: #0a0a0a;
+            --text-light: #fafafa;
+            --text-muted: #666;
+            --accent: #ff3300;
+            --accent-glow: rgba(255, 51, 0, 0.15);
+            --grid-color: rgba(0, 0, 0, 0.05);
+            --grid-color-dark: rgba(255, 255, 255, 0.05);
+            --rule-color: #ddd;
+
+            /* Typography — all clamp() */
+            --font-display: 'Archivo', sans-serif;
+            --font-body: 'Nunito', sans-serif;
+            --title-size: clamp(2rem, 6vw, 5rem);
+            --h2-size: clamp(1.5rem, 4vw, 3rem);
+            --h3-size: clamp(1rem, 2vw, 1.4rem);
+            --subtitle-size: clamp(0.85rem, 1.8vw, 1.2rem);
+            --body-size: clamp(0.75rem, 1.3vw, 1.05rem);
+            --small-size: clamp(0.6rem, 0.9vw, 0.8rem);
+            --label-size: clamp(0.55rem, 0.8vw, 0.7rem);
+
+            /* Spacing */
+            --slide-padding: clamp(1.5rem, 5vw, 5rem);
+            --content-gap: clamp(0.8rem, 2vw, 2rem);
+            --element-gap: clamp(0.4rem, 1vw, 1rem);
+
+            /* Animation */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration: 0.7s;
+        }
+
+        /* ===========================================
+           BASE RESET
+           =========================================== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ===========================================
+           VIEWPORT FITTING: MANDATORY BASE STYLES
+           =========================================== */
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+
+        .card, .container, .content-box {
+            max-width: min(90vw, 1000px);
+            max-height: min(80vh, 700px);
+        }
+
+        .feature-list, .bullet-list {
+            gap: clamp(0.4rem, 1vh, 1rem);
+        }
+
+        .feature-list li, .bullet-list li {
+            font-size: var(--body-size);
+            line-height: 1.4;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+
+        img, .image-container {
+            max-width: 100%;
+            max-height: min(50vh, 400px);
+            object-fit: contain;
+        }
+
+        /* Short viewports */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+                --title-size: clamp(1.5rem, 5vw, 3rem);
+                --h2-size: clamp(1.2rem, 3.5vw, 2rem);
+            }
+        }
+
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+                --title-size: clamp(1.2rem, 4.5vw, 2.2rem);
+                --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            }
+            .nav-dots, .keyboard-hint, .decorative { display: none; }
+        }
+
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 2vw, 1rem);
+                --title-size: clamp(1rem, 4vw, 1.8rem);
+                --h2-size: clamp(0.9rem, 3vw, 1.4rem);
+                --body-size: clamp(0.65rem, 1vw, 0.85rem);
+            }
+        }
+
+        @media (max-width: 600px) {
+            :root { --title-size: clamp(1.5rem, 8vw, 2.8rem); }
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ===========================================
+           GLOBAL TYPOGRAPHY
+           =========================================== */
+        body {
+            font-family: var(--font-body);
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        h1, h2, h3, .label-text {
+            font-family: var(--font-display);
+        }
+
+        /* ===========================================
+           GRID BACKGROUND PATTERN
+           =========================================== */
+        .grid-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: clamp(30px, 5vw, 60px) clamp(30px, 5vw, 60px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .grid-bg-dark::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid-color-dark) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color-dark) 1px, transparent 1px);
+            background-size: clamp(30px, 5vw, 60px) clamp(30px, 5vw, 60px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ===========================================
+           ANIMATIONS — REVEAL SYSTEM
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity var(--duration) var(--ease-out-expo),
+                        transform var(--duration) var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide.visible .reveal:nth-child(1) { transition-delay: 0.05s; }
+        .slide.visible .reveal:nth-child(2) { transition-delay: 0.15s; }
+        .slide.visible .reveal:nth-child(3) { transition-delay: 0.25s; }
+        .slide.visible .reveal:nth-child(4) { transition-delay: 0.35s; }
+        .slide.visible .reveal:nth-child(5) { transition-delay: 0.45s; }
+        .slide.visible .reveal:nth-child(6) { transition-delay: 0.55s; }
+
+        /* ===========================================
+           SLIDE NUMBER BADGE
+           =========================================== */
+        .slide-number {
+            position: absolute;
+            top: var(--slide-padding);
+            right: var(--slide-padding);
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: clamp(0.7rem, 1.2vw, 1rem);
+            color: var(--accent);
+            letter-spacing: 0.05em;
+            z-index: 2;
+        }
+
+        .slide-number-light {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* ===========================================
+           ACCENT ELEMENTS
+           =========================================== */
+        .accent-block {
+            position: absolute;
+            background: var(--accent);
+            z-index: 1;
+        }
+
+        .h-rule {
+            width: clamp(40px, 8vw, 100px);
+            height: 3px;
+            background: var(--accent);
+            margin: var(--element-gap) 0;
+        }
+
+        .h-rule-dark {
+            background: var(--text-light);
+        }
+
+        /* ===========================================
+           SLIDE 1: TITLE
+           =========================================== */
+        .title-slide {
+            background: var(--bg);
+        }
+
+        .title-slide .content-wrap {
+            position: relative;
+            z-index: 1;
+            padding: var(--slide-padding);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+            max-width: min(85vw, 900px);
+        }
+
+        .title-slide .label-text {
+            font-size: var(--label-size);
+            font-weight: 800;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .title-slide h1 {
+            font-weight: 900;
+            font-size: var(--title-size);
+            line-height: 0.95;
+            color: var(--text);
+            margin-top: var(--element-gap);
+        }
+
+        .title-slide h1 .dot {
+            color: var(--accent);
+        }
+
+        .title-slide .tagline {
+            font-family: var(--font-body);
+            font-size: var(--subtitle-size);
+            color: var(--text-muted);
+            margin-top: var(--content-gap);
+            max-width: 50ch;
+        }
+
+        /* Geometric accent for title */
+        .title-accent {
+            position: absolute;
+            top: clamp(1.5rem, 4vh, 3.5rem);
+            right: clamp(1.5rem, 4vw, 3.5rem);
+            width: clamp(50px, 9vw, 120px);
+            height: clamp(50px, 9vw, 120px);
+            background: var(--accent);
+            z-index: 1;
+            opacity: 0;
+            transform: rotate(45deg) scale(0);
+            transition: opacity 0.8s var(--ease-out-expo), transform 1s var(--ease-out-expo);
+            transition-delay: 0.4s;
+        }
+
+        .title-slide.visible .title-accent {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+
+        /* ===========================================
+           SLIDE 2: THE PROBLEM (DARK)
+           =========================================== */
+        .problem-slide {
+            background: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .problem-slide .slide-content {
+            gap: var(--content-gap);
+        }
+
+        .problem-slide h2 {
+            font-weight: 900;
+            font-size: var(--h2-size);
+            line-height: 1.05;
+        }
+
+        .problem-slide .problem-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 1.2vh, 1rem);
+        }
+
+        .problem-slide .problem-list li {
+            font-size: var(--body-size);
+            color: rgba(255, 255, 255, 0.7);
+            padding-left: clamp(1rem, 2vw, 1.8rem);
+            position: relative;
+        }
+
+        .problem-slide .problem-list li::before {
+            content: '×';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+        }
+
+        /* ===========================================
+           SLIDE 3: THE INSIGHT
+           =========================================== */
+        .insight-slide {
+            background: var(--bg);
+        }
+
+        .insight-slide .slide-content {
+            align-items: center;
+            text-align: center;
+            gap: var(--content-gap);
+        }
+
+        .insight-slide h2 {
+            font-weight: 900;
+            font-size: var(--h2-size);
+            line-height: 1.1;
+            max-width: 18ch;
+        }
+
+        .analogy-row {
+            display: flex;
+            align-items: center;
+            gap: clamp(1rem, 3vw, 3rem);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .analogy-box {
+            border: 2px solid var(--text);
+            padding: clamp(0.8rem, 2vw, 1.5rem) clamp(1.2rem, 3vw, 2.5rem);
+            text-align: center;
+        }
+
+        .analogy-box .box-label {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: var(--small-size);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .analogy-box .box-value {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            margin-top: clamp(0.2rem, 0.5vh, 0.4rem);
+        }
+
+        .analogy-box.active {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .analogy-box.active .box-value {
+            color: var(--accent);
+        }
+
+        .analogy-arrow {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            color: var(--accent);
+        }
+
+        .insight-note {
+            font-size: var(--body-size);
+            color: var(--text-muted);
+            max-width: 50ch;
+        }
+
+        /* ===========================================
+           SLIDE 4: THE SOLUTION
+           =========================================== */
+        .solution-slide {
+            background: var(--bg);
+        }
+
+        .solution-slide .slide-content {
+            gap: var(--content-gap);
+        }
+
+        .solution-slide h2 {
+            font-weight: 900;
+            font-size: var(--h2-size);
+            line-height: 1.05;
+        }
+
+        .solution-slide .solution-desc {
+            font-size: var(--subtitle-size);
+            color: var(--text-muted);
+            max-width: 55ch;
+        }
+
+        .solution-features {
+            display: flex;
+            gap: clamp(1rem, 2.5vw, 2rem);
+            flex-wrap: wrap;
+            margin-top: var(--element-gap);
+        }
+
+        .solution-feature {
+            flex: 1;
+            min-width: min(100%, 180px);
+            border-top: 3px solid var(--text);
+            padding-top: var(--element-gap);
+        }
+
+        .solution-feature.accent-border {
+            border-top-color: var(--accent);
+        }
+
+        .solution-feature h3 {
+            font-weight: 800;
+            font-size: var(--h3-size);
+            margin-bottom: clamp(0.2rem, 0.5vh, 0.4rem);
+        }
+
+        .solution-feature p {
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           SLIDE 5: HOW IT WORKS (DARK)
+           =========================================== */
+        .process-slide {
+            background: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .process-slide .slide-content {
+            gap: var(--content-gap);
+        }
+
+        .process-slide h2 {
+            font-weight: 900;
+            font-size: var(--h2-size);
+            line-height: 1.05;
+        }
+
+        .process-steps {
+            display: flex;
+            gap: clamp(0.5rem, 2vw, 2rem);
+            flex-wrap: wrap;
+        }
+
+        .step {
+            flex: 1;
+            min-width: min(100%, 140px);
+            position: relative;
+        }
+
+        .step-num {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: clamp(2rem, 5vw, 4rem);
+            color: rgba(255, 51, 0, 0.2);
+            line-height: 1;
+        }
+
+        .step h3 {
+            font-weight: 800;
+            font-size: var(--h3-size);
+            margin-top: clamp(0.2rem, 0.5vh, 0.5rem);
+        }
+
+        .step p {
+            font-size: var(--small-size);
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: clamp(0.15rem, 0.4vh, 0.3rem);
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           SLIDE 6: FEATURES
+           =========================================== */
+        .features-slide {
+            background: var(--bg);
+        }
+
+        .features-slide .slide-content {
+            gap: var(--content-gap);
+        }
+
+        .features-slide h2 {
+            font-weight: 900;
+            font-size: var(--h2-size);
+            line-height: 1.05;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+            gap: clamp(0.6rem, 1.5vw, 1.2rem);
+        }
+
+        .feature-card {
+            border: 2px solid rgba(0, 0, 0, 0.08);
+            padding: clamp(0.8rem, 2vw, 1.5rem);
+            position: relative;
+            transition: border-color 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent);
+        }
+
+        .feature-icon {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: clamp(1.2rem, 2vw, 1.6rem);
+            color: var(--accent);
+            margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem);
+        }
+
+        .feature-card h3 {
+            font-weight: 800;
+            font-size: var(--h3-size);
+            margin-bottom: clamp(0.15rem, 0.4vh, 0.3rem);
+        }
+
+        .feature-card p {
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           SLIDE 7: WHY NOW (DARK)
+           =========================================== */
+        .why-slide {
+            background: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .why-slide .slide-content {
+            gap: var(--content-gap);
+        }
+
+        .why-slide h2 {
+            font-weight: 900;
+            font-size: var(--h2-size);
+            line-height: 1.05;
+        }
+
+        .why-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.6rem, 1.5vh, 1.2rem);
+        }
+
+        .why-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.5rem, 1.5vw, 1.2rem);
+            font-size: var(--body-size);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .why-marker {
+            flex-shrink: 0;
+            width: clamp(24px, 3vw, 36px);
+            height: 3px;
+            background: var(--accent);
+            margin-top: clamp(0.5rem, 0.8vw, 0.7rem);
+        }
+
+        /* ===========================================
+           SLIDE 8: CTA
+           =========================================== */
+        .cta-slide {
+            background: var(--bg);
+        }
+
+        .cta-slide .slide-content {
+            align-items: center;
+            text-align: center;
+            gap: var(--content-gap);
+        }
+
+        .cta-slide h2 {
+            font-weight: 900;
+            font-size: var(--title-size);
+            line-height: 0.95;
+        }
+
+        .cta-slide h2 .dot {
+            color: var(--accent);
+        }
+
+        .cta-slide .cta-sub {
+            font-size: var(--subtitle-size);
+            color: var(--text-muted);
+            max-width: 40ch;
+        }
+
+        .cta-button {
+            display: inline-block;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: var(--body-size);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--text-light);
+            background: var(--accent);
+            padding: clamp(0.6rem, 1.5vh, 1rem) clamp(1.5rem, 4vw, 3rem);
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+
+        .cta-url {
+            font-family: var(--font-display);
+            font-size: var(--small-size);
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            margin-top: var(--element-gap);
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 9999;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAVIGATION DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(0.8rem, 2vw, 1.5rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(6px, 0.8vh, 10px);
+            z-index: 9998;
+        }
+
+        .nav-dot {
+            width: clamp(6px, 0.6vw, 8px);
+            height: clamp(6px, 0.6vw, 8px);
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.15);
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--accent);
+            transform: scale(1.4);
+        }
+
+        /* Invert dots on dark slides */
+        .nav-dots.on-dark .nav-dot {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-dots.on-dark .nav-dot.active {
+            background: var(--accent);
+        }
+
+        /* ===========================================
+           INLINE EDITING
+           =========================================== */
+        .edit-hotzone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            z-index: 10000;
+            cursor: pointer;
+        }
+
+        .edit-toggle {
+            position: fixed;
+            top: clamp(0.5rem, 1.5vh, 1rem);
+            left: clamp(0.5rem, 1.5vw, 1rem);
+            font-size: clamp(0.75rem, 1.2vw, 1rem);
+            font-family: var(--font-display);
+            font-weight: 700;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            border: none;
+            padding: clamp(0.3rem, 0.8vh, 0.5rem) clamp(0.6rem, 1.5vw, 1rem);
+            cursor: pointer;
+            z-index: 10001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .edit-toggle.show,
+        .edit-toggle.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .edit-toggle.active {
+            background: var(--accent);
+        }
+
+        .edit-banner {
+            position: fixed;
+            bottom: clamp(0.5rem, 1.5vh, 1rem);
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-display);
+            font-size: var(--small-size);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(1rem, 2vw, 1.5rem);
+            z-index: 10001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .edit-banner.show {
+            opacity: 1;
+        }
+
+        [contenteditable="true"] {
+            outline: 2px dashed var(--accent);
+            outline-offset: 4px;
+            cursor: text;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Navigation dots -->
+    <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+
+    <!-- Inline editing controls -->
+    <div class="edit-hotzone" id="editHotzone"></div>
+    <button class="edit-toggle" id="editToggle">EDIT</button>
+    <div class="edit-banner" id="editBanner">EDIT MODE — Click text to edit · Ctrl+S to save</div>
+
+    <!-- ===========================================
+         SLIDE 1: TITLE
+         =========================================== -->
+    <section class="slide title-slide grid-bg" aria-label="Title">
+        <div class="title-accent"></div>
+        <div class="content-wrap">
+            <span class="label-text reveal">Knowledge Infrastructure</span>
+            <div class="h-rule reveal"></div>
+            <h1 class="reveal">idearchy<span class="dot">.</span>tech</h1>
+            <p class="tagline reveal">Your knowledge is already there. It just isn't working for you yet.</p>
+        </div>
+        <span class="slide-number">01</span>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 2: THE PROBLEM
+         =========================================== -->
+    <section class="slide problem-slide grid-bg-dark" aria-label="The Problem">
+        <div class="slide-content">
+            <div class="h-rule h-rule-dark reveal"></div>
+            <h2 class="reveal">Your knowledge<br>is trapped.</h2>
+            <ul class="problem-list">
+                <li class="reveal">Notes scattered across apps, folders, and formats — never where you need them</li>
+                <li class="reveal">You've read it, written it, learned it — but can't recall it when it matters</li>
+                <li class="reveal">Organizing takes more time than creating, so nothing gets organized</li>
+                <li class="reveal">Existing tools demand you be the librarian. You just want to think.</li>
+            </ul>
+        </div>
+        <span class="slide-number slide-number-light">02</span>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 3: THE INSIGHT
+         =========================================== -->
+    <section class="slide insight-slide grid-bg" aria-label="The Insight">
+        <div class="slide-content">
+            <div class="h-rule reveal"></div>
+            <h2 class="reveal">Storage ≠ Memory</h2>
+            <div class="analogy-row reveal">
+                <div class="analogy-box">
+                    <div class="box-label">Today</div>
+                    <div class="box-value">Disk</div>
+                </div>
+                <div class="analogy-arrow">→</div>
+                <div class="analogy-box active">
+                    <div class="box-label">With idearchy</div>
+                    <div class="box-value">RAM</div>
+                </div>
+            </div>
+            <p class="insight-note reveal">Your knowledge exists in storage — static files sitting on a shelf. idearchy moves it into active memory — indexed, connected, and ready to use on demand.</p>
+        </div>
+        <span class="slide-number">03</span>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 4: THE SOLUTION
+         =========================================== -->
+    <section class="slide solution-slide grid-bg" aria-label="The Solution">
+        <div class="slide-content">
+            <div class="h-rule reveal"></div>
+            <h2 class="reveal">Chat with<br>your knowledge.</h2>
+            <p class="solution-desc reveal">idearchy turns unorganized documents into an intelligent system you can talk to — and that talks back with ideas.</p>
+            <div class="solution-features">
+                <div class="solution-feature reveal">
+                    <h3>Ingest</h3>
+                    <p>Drop in documents, notes, bookmarks — any format. No organizing required.</p>
+                </div>
+                <div class="solution-feature accent-border reveal">
+                    <h3>Converse</h3>
+                    <p>Ask questions, explore connections, surface forgotten insights through natural chat.</p>
+                </div>
+                <div class="solution-feature reveal">
+                    <h3>Act</h3>
+                    <p>AI Agents generate ideas, find opportunities, and draft plans from what you already know.</p>
+                </div>
+            </div>
+        </div>
+        <span class="slide-number">04</span>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 5: HOW IT WORKS
+         =========================================== -->
+    <section class="slide process-slide grid-bg-dark" aria-label="How It Works">
+        <div class="slide-content">
+            <div class="h-rule h-rule-dark reveal"></div>
+            <h2 class="reveal">How it works.</h2>
+            <div class="process-steps">
+                <div class="step reveal">
+                    <div class="step-num">01</div>
+                    <h3>Upload</h3>
+                    <p>Bring your docs, notes, PDFs, bookmarks — the messier, the better.</p>
+                </div>
+                <div class="step reveal">
+                    <div class="step-num">02</div>
+                    <h3>Index</h3>
+                    <p>AI maps relationships between your ideas, building a knowledge graph automatically.</p>
+                </div>
+                <div class="step reveal">
+                    <div class="step-num">03</div>
+                    <h3>Chat</h3>
+                    <p>Converse with your knowledge base. Ask anything. Get answers grounded in your own work.</p>
+                </div>
+                <div class="step reveal">
+                    <div class="step-num">04</div>
+                    <h3>Discover</h3>
+                    <p>AI Agents proactively surface ideas, connections, and opportunities you'd never find manually.</p>
+                </div>
+            </div>
+        </div>
+        <span class="slide-number slide-number-light">05</span>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 6: KEY FEATURES
+         =========================================== -->
+    <section class="slide features-slide grid-bg" aria-label="Key Features">
+        <div class="slide-content">
+            <div class="h-rule reveal"></div>
+            <h2 class="reveal">Built different.</h2>
+            <div class="feature-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon">/</div>
+                    <h3>AI Agents</h3>
+                    <p>Autonomous agents that work through your knowledge to craft ideas and find opportunities.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">#</div>
+                    <h3>Knowledge Graph</h3>
+                    <p>Automatic connections between concepts — no manual tagging or linking.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">→</div>
+                    <h3>Conversational</h3>
+                    <p>Chat interface, not file browsers. Ask instead of search.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">∞</div>
+                    <h3>Format Agnostic</h3>
+                    <p>PDFs, notes, bookmarks, docs — bring everything, organize nothing.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">◎</div>
+                    <h3>Proactive</h3>
+                    <p>Surfaces insights you didn't ask for. Your knowledge works while you sleep.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">■</div>
+                    <h3>Private</h3>
+                    <p>Your knowledge stays yours. Built with privacy as a foundation, not an afterthought.</p>
+                </div>
+            </div>
+        </div>
+        <span class="slide-number">06</span>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 7: WHY NOW
+         =========================================== -->
+    <section class="slide why-slide grid-bg-dark" aria-label="Why Now">
+        <div class="slide-content">
+            <div class="h-rule h-rule-dark reveal"></div>
+            <h2 class="reveal">Why now.</h2>
+            <ul class="why-list">
+                <li class="reveal">
+                    <div class="why-marker"></div>
+                    <span>AI agents have matured enough to reason across unstructured knowledge — not just retrieve it.</span>
+                </li>
+                <li class="reveal">
+                    <div class="why-marker"></div>
+                    <span>Embedding models now capture nuance that keyword search never could.</span>
+                </li>
+                <li class="reveal">
+                    <div class="why-marker"></div>
+                    <span>The knowledge worker's stack is more fragmented than ever — the need for unification is urgent.</span>
+                </li>
+                <li class="reveal">
+                    <div class="why-marker"></div>
+                    <span>People don't want another note-taking app. They want their existing notes to become useful.</span>
+                </li>
+            </ul>
+        </div>
+        <span class="slide-number slide-number-light">07</span>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 8: CALL TO ACTION
+         =========================================== -->
+    <section class="slide cta-slide grid-bg" aria-label="Get Started">
+        <div class="slide-content">
+            <div class="h-rule reveal"></div>
+            <h2 class="reveal">Stop filing<span class="dot">.</span><br>Start using<span class="dot">.</span></h2>
+            <p class="cta-sub reveal">Turn your scattered knowledge into your most powerful tool.</p>
+            <a class="cta-button reveal" href="https://idearchy.tech" target="_blank" rel="noopener">Get Early Access</a>
+            <div class="cta-url reveal">idearchy.tech</div>
+        </div>
+        <span class="slide-number">08</span>
+    </section>
+
+    <!-- ===========================================
+       JAVASCRIPT: PRESENTATION CONTROLLER
+       =========================================== -->
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CLASS
+           Handles navigation, animations, progress
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isScrolling = false;
+                this.scrollTimeout = null;
+
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupWheelNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+                this.updateNavDotsTheme();
+            }
+
+            /* --- Intersection Observer: triggers .visible class --- */
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const index = Array.from(this.slides).indexOf(entry.target);
+                            if (index !== -1) {
+                                this.currentSlide = index;
+                                this.updateProgressBar();
+                                this.updateNavDots();
+                                this.updateNavDotsTheme();
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            /* --- Keyboard: arrows, space, page up/down --- */
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.target.getAttribute('contenteditable')) return;
+                    switch(e.key) {
+                        case 'ArrowDown':
+                        case 'ArrowRight':
+                        case ' ':
+                        case 'PageDown':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide + 1);
+                            break;
+                        case 'ArrowUp':
+                        case 'ArrowLeft':
+                        case 'PageUp':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide - 1);
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            this.goToSlide(0);
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            this.goToSlide(this.slides.length - 1);
+                            break;
+                    }
+                });
+            }
+
+            /* --- Touch: swipe up/down --- */
+            setupTouchNav() {
+                let touchStartY = 0;
+                document.addEventListener('touchstart', (e) => {
+                    touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    const diff = touchStartY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        this.goToSlide(this.currentSlide + (diff > 0 ? 1 : -1));
+                    }
+                }, { passive: true });
+            }
+
+            /* --- Mouse wheel with debounce --- */
+            setupWheelNav() {
+                document.addEventListener('wheel', (e) => {
+                    if (this.isScrolling) return;
+                    this.isScrolling = true;
+
+                    if (e.deltaY > 0) {
+                        this.goToSlide(this.currentSlide + 1);
+                    } else if (e.deltaY < 0) {
+                        this.goToSlide(this.currentSlide - 1);
+                    }
+
+                    clearTimeout(this.scrollTimeout);
+                    this.scrollTimeout = setTimeout(() => {
+                        this.isScrolling = false;
+                    }, 800);
+                }, { passive: true });
+            }
+
+            /* --- Navigate to slide --- */
+            goToSlide(index) {
+                if (index < 0 || index >= this.slides.length) return;
+                this.currentSlide = index;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                this.updateProgressBar();
+                this.updateNavDots();
+                this.updateNavDotsTheme();
+            }
+
+            /* --- Progress bar --- */
+            setupProgressBar() {
+                this.progressBar = document.getElementById('progressBar');
+                this.updateProgressBar();
+            }
+
+            updateProgressBar() {
+                if (!this.progressBar) return;
+                const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = progress + '%';
+            }
+
+            /* --- Navigation dots --- */
+            setupNavDots() {
+                const nav = document.getElementById('navDots');
+                if (!nav) return;
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+                    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    nav.appendChild(dot);
+                });
+            }
+
+            updateNavDots() {
+                const dots = document.querySelectorAll('.nav-dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+
+            /* --- Invert dots on dark slides --- */
+            updateNavDotsTheme() {
+                const nav = document.getElementById('navDots');
+                if (!nav) return;
+                const current = this.slides[this.currentSlide];
+                const isDark = current.classList.contains('problem-slide') ||
+                               current.classList.contains('process-slide') ||
+                               current.classList.contains('why-slide');
+                nav.classList.toggle('on-dark', isDark);
+            }
+        }
+
+        /* ===========================================
+           INLINE EDITOR CLASS
+           Enables text editing, localStorage save, export
+           =========================================== */
+        class InlineEditor {
+            constructor() {
+                this.isActive = false;
+                this.editToggle = document.getElementById('editToggle');
+                this.editBanner = document.getElementById('editBanner');
+                this.storageKey = 'idearchy-pitch-edits';
+                this.setupHotzone();
+                this.setupKeyboard();
+                this.loadEdits();
+            }
+
+            /* --- Hotzone hover with 400ms grace period --- */
+            setupHotzone() {
+                const hotzone = document.getElementById('editHotzone');
+                let hideTimeout = null;
+
+                hotzone.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                    this.editToggle.classList.add('show');
+                });
+                hotzone.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        if (!this.isActive) this.editToggle.classList.remove('show');
+                    }, 400);
+                });
+                this.editToggle.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                });
+                this.editToggle.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        if (!this.isActive) this.editToggle.classList.remove('show');
+                    }, 400);
+                });
+
+                /* Click handlers */
+                this.editToggle.addEventListener('click', () => this.toggleEditMode());
+                hotzone.addEventListener('click', () => this.toggleEditMode());
+            }
+
+            /* --- Keyboard: E to toggle, Ctrl+S to save --- */
+            setupKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) {
+                        this.toggleEditMode();
+                    }
+                    if (e.ctrlKey && e.key === 's') {
+                        e.preventDefault();
+                        if (this.isActive) this.saveEdits();
+                    }
+                });
+            }
+
+            toggleEditMode() {
+                this.isActive = !this.isActive;
+                this.editToggle.classList.toggle('active', this.isActive);
+                this.editToggle.textContent = this.isActive ? 'EDITING' : 'EDIT';
+                this.editBanner.classList.toggle('show', this.isActive);
+
+                /* Make text elements editable */
+                const editables = document.querySelectorAll('h1, h2, h3, p, li, span.label-text, .tagline, .cta-sub, .cta-url, .insight-note, .box-label, .box-value, .solution-desc');
+                editables.forEach(el => {
+                    if (!el.closest('.nav-dots') && !el.closest('.edit-banner')) {
+                        el.setAttribute('contenteditable', this.isActive ? 'true' : 'false');
+                    }
+                });
+
+                if (!this.isActive) this.saveEdits();
+            }
+
+            /* --- Save edits to localStorage --- */
+            saveEdits() {
+                const data = {};
+                document.querySelectorAll('.slide').forEach((slide, si) => {
+                    const elements = slide.querySelectorAll('h1, h2, h3, p, li, span.label-text');
+                    elements.forEach((el, ei) => {
+                        data[`s${si}-e${ei}`] = el.innerHTML;
+                    });
+                });
+                localStorage.setItem(this.storageKey, JSON.stringify(data));
+            }
+
+            /* --- Load edits from localStorage --- */
+            loadEdits() {
+                const raw = localStorage.getItem(this.storageKey);
+                if (!raw) return;
+                try {
+                    const data = JSON.parse(raw);
+                    document.querySelectorAll('.slide').forEach((slide, si) => {
+                        const elements = slide.querySelectorAll('h1, h2, h3, p, li, span.label-text');
+                        elements.forEach((el, ei) => {
+                            const key = `s${si}-e${ei}`;
+                            if (data[key] !== undefined) el.innerHTML = data[key];
+                        });
+                    });
+                } catch(e) { /* ignore corrupt data */ }
+            }
+        }
+
+        /* ===========================================
+           INIT
+           =========================================== */
+        const presentation = new SlidePresentation();
+        const editor = new InlineEditor();
+    </script>
+</body>
+</html>
